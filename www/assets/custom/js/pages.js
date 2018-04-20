@@ -739,18 +739,16 @@ myApp.onPageInit('login', function (page) {
     /* Validate & Submit Form */
     $('.page[data-page=login] form[name=login]').validate({
         rules: {
-            email: {
-                required: true,
-                email: true
+            username: {
+                required: true
             },
             password: {
                 required: true
             }
         },
         messages: {
-            email: {
-                required: 'Please enter email address.',
-                email: 'Please enter a valid email address.'
+            username: {
+                required: 'Please enter username.'
             },
             password: {
                 required: 'Please enter password.'
@@ -763,12 +761,11 @@ myApp.onPageInit('login', function (page) {
         },
         submitHandler: function (form) {
             var apiHost = localStorage.getItem("api_host");
-            var username = form['email'].value.match(/^([^@]*)@/)[1];
 
             $.ajax({
                 type: "POST",
                 url: apiHost + "/auth/login",
-                data: {'username': username, 'plain_password': form['password'].value},
+                data: {'username': form['username'].value, 'plain_password': form['password'].value},
                 success: function (receiveData) {
                     localStorage.setItem("api_key", receiveData.api_key);
                     localStorage.setItem("user_id", receiveData.user);
