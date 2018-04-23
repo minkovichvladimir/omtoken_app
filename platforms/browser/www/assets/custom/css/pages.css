@@ -357,6 +357,134 @@
 
 /*
 |------------------------------------------------------------------------------
+| Sell
+|------------------------------------------------------------------------------
+*/
+
+.page[data-page=sell] .page-content {
+	height: calc(100% - 48px);
+	padding-top: 56px !important;
+}
+
+.page[data-page=sell] .products-list .item-media img {
+	max-height: 80px;
+	width: 40px;
+}
+
+.page[data-page=sell] .products-list .item-title {
+	-webkit-box-orient: vertical;
+	display: -webkit-box;
+	font-size: 13px;
+	-webkit-line-clamp: 2;
+	line-height: 17px;
+	margin-bottom: 2px;
+	white-space: normal;
+}
+
+.page[data-page=sell] .products-list .item-after {
+	font-weight: bold;
+}
+
+.page[data-page=sell] .products-list .item-subtitle {
+	-webkit-box-orient: vertical;
+	display: -webkit-box;
+	font-size: 11px;
+	-webkit-line-clamp: 2;
+	white-space: normal;
+}
+
+.page[data-page=sell] .products-list .item-text {
+	margin-top: 4px;
+}
+
+.page[data-page=sell] .price-summary .item-title {
+	font-size: 14px;
+}
+
+.page[data-page=sell] .toolbar-bottom .grand-total {
+	background-color: #F1F2F1;
+	color: rgba(0, 0, 0, 0.87);
+	font-size: 16px;
+	font-weight: bold;
+	height: 48px;
+	line-height: 48px;
+	text-align: center;
+	width: 50%;
+}
+
+.page[data-page=sell] .toolbar-bottom .button {
+	border-radius: 0;
+	height: 48px;
+	line-height: 48px;
+	width: 50%;
+}
+
+/*
+|------------------------------------------------------------------------------
+| Top up
+|------------------------------------------------------------------------------
+*/
+
+.page[data-page=top-up] .page-content {
+	height: calc(100% - 48px);
+	padding-top: 56px !important;
+}
+
+.page[data-page=top-up] .products-list .item-media img {
+	max-height: 80px;
+	width: 40px;
+}
+
+.page[data-page=top-up] .products-list .item-title {
+	-webkit-box-orient: vertical;
+	display: -webkit-box;
+	font-size: 13px;
+	-webkit-line-clamp: 2;
+	line-height: 17px;
+	margin-bottom: 2px;
+	white-space: normal;
+}
+
+.page[data-page=top-up] .products-list .item-after {
+	font-weight: bold;
+}
+
+.page[data-page=top-up] .products-list .item-subtitle {
+	-webkit-box-orient: vertical;
+	display: -webkit-box;
+	font-size: 11px;
+	-webkit-line-clamp: 2;
+	white-space: normal;
+}
+
+.page[data-page=top-up] .products-list .item-text {
+	margin-top: 4px;
+}
+
+.page[data-page=top-up] .price-summary .item-title {
+	font-size: 14px;
+}
+
+.page[data-page=top-up] .toolbar-bottom .grand-total {
+	background-color: #F1F2F1;
+	color: rgba(0, 0, 0, 0.87);
+	font-size: 16px;
+	font-weight: bold;
+	height: 48px;
+	line-height: 48px;
+	text-align: center;
+	width: 50%;
+}
+
+.page[data-page=top-up] .toolbar-bottom .button {
+	border-radius: 0;
+	height: 48px;
+	line-height: 48px;
+	width: 50%;
+}
+
+/*
+|------------------------------------------------------------------------------
 | Chat
 |------------------------------------------------------------------------------
 */

@@ -74,6 +74,12 @@ myApp.onPageInit('careers', function (page) {
 
 myApp.onPageInit('cart', function (page) {
 
+    var stockName = localStorage.getItem("buy_stock_name");
+    var stockPrice = localStorage.getItem("buy_stock_price");
+
+    document.getElementById("div-product-title").innerHTML = stockName;
+    document.getElementById("div-product").setAttribute("data-unit-price", stockPrice);
+
     updateAmount();
 
     /* Change Quantity */
@@ -95,36 +101,38 @@ myApp.onPageInit('cart', function (page) {
         myApp.swipeoutClose(el);
     });
 
-    /* Remove Product */
-    $$('.page[data-page=cart] [data-action=remove-product]').on('click', function (e) {
-        e.preventDefault();
-        var el = $(this).closest('.swipeout');
-        myApp.confirm('Do you want to remove this product from cart?',
-            function () {
-                myApp.swipeoutDelete(el, function () {
-                    myApp.addNotification({
-                        message: 'Removed from cart successfully.',
-                        hold: 1500,
-                        button: {
-                            text: ''
-                        },
-                        onClose: function () {
-                            updateAmount();
-                        }
-                    });
-                });
-            },
-            function () {
-                myApp.swipeoutClose(el);
-            }
-        );
-    });
+    // /* Remove Product */
+    // $$('.page[data-page=cart] [data-action=remove-product]').on('click', function (e) {
+    //     e.preventDefault();
+    //     var el = $(this).closest('.swipeout');
+    //     myApp.confirm('Do you want to remove this product from cart?',
+    //         function () {
+    //             myApp.swipeoutDelete(el, function () {
+    //                 myApp.addNotification({
+    //                     message: 'Removed from cart successfully.',
+    //                     hold: 1500,
+    //                     button: {
+    //                         text: ''
+    //                     },
+    //                     onClose: function () {
+    //                         updateAmount();
+    //                     }
+    //                 });
+    //             });
+    //         },
+    //         function () {
+    //             myApp.swipeoutClose(el);
+    //         }
+    //     );
+    // });
+
+    var value = 1;
 
     function updateAmount() {
         var product_count = 0;
-        var subtotal = 0;
-        var discount = 0;
-        var shipping_charges = 0;
+        // var subtotal = 0;
+        // var discount = 0;
+        // var shipping_charges = 0;
         var grand_total = 0;
 
         product_count = $('.page[data-page=cart] .products-list li').length;
@@ -132,22 +140,255 @@ myApp.onPageInit('cart', function (page) {
         $$('.page[data-page=cart] .products-list li').each(function () {
             var unit_price = $$(this).find('[data-unit-price]').data('unit-price');
             var quantity = $$(this).find('.product-quantity').text();
-            subtotal += parseInt(unit_price * quantity);
+            value = quantity;
+            // subtotal += parseInt(unit_price * quantity);
+            grand_total = parseInt(unit_price * quantity);
             $$(this).find('.product-amount').text(parseInt(unit_price * quantity));
-        })
+        });
 
-        discount = (subtotal * $$('.page[data-page=cart] [data-discount-percent]').data('discount-percent')) / 100;
-
-        shipping_charges = parseInt($$('.page[data-page=cart] .shipping-charges').text());
-
-        grand_total = parseInt(subtotal - discount + shipping_charges);
+        // discount = (subtotal * $$('.page[data-page=cart] [data-discount-percent]').data('discount-percent')) / 100;
+        // shipping_charges = parseInt($$('.page[data-page=cart] .shipping-charges').text());
+        // grand_total = parseInt(subtotal - discount + shipping_charges);
 
         $$('.page[data-page=cart] .product-count').text(product_count);
-        $$('.page[data-page=cart] .subtotal').text(subtotal);
-        $$('.page[data-page=cart] .discount').text(discount);
+        // $$('.page[data-page=cart] .subtotal').text(subtotal);
+        // $$('.page[data-page=cart] .discount').text(discount);
         $$('.page[data-page=cart] .payable-amount').text(grand_total);
-        $$('.page[data-page=cart] .toolbar-bottom .grand-total').text('₹' + grand_total);
+        $$('.page[data-page=cart] .toolbar-bottom .grand-total').text('$' + grand_total);
     }
+
+    $$('.page[data-page=cart] .toolbar-bottom .button').on('click', function (e) {
+
+        var apiHost = localStorage.getItem("api_host");
+        var apiKey = localStorage.getItem("api_key");
+        var userId = localStorage.getItem("user_id");
+        var stockId = localStorage.getItem("buy_stock_id");
+
+        $.ajax({
+            type: "POST",
+            url: apiHost + "/api/stock/buy",
+            headers: {'x-api-key': apiKey},
+            data: {'user_id': userId, 'stock_id': stockId, "value": value},
+            success: function (receiveData) {
+                myApp.addNotification({
+                    message: 'success',
+                    hold: 1500,
+                    button: {
+                        text: ''
+                    }
+                });
+                mainView.router.load({
+                    url: 'user-profile.html'
+                });
+            },
+            error: function (error) {
+                myApp.addNotification({
+                    message: 'fail',
+                    hold: 1500,
+                    button: {
+                        text: ''
+                    }
+                });
+                console.log(error);
+            }
+        });
+    });
+
+});
+
+/*
+|------------------------------------------------------------------------------
+| Sell
+|------------------------------------------------------------------------------
+*/
+
+myApp.onPageInit('sell', function (page) {
+    document.getElementById("div-product-title").innerHTML = localStorage.getItem("sell_stock_name");
+
+    updateAmountSell();
+
+    /* Change Quantity */
+    $$('.page[data-page=sell] [data-action=change-quantity]').on('click', function (e) {
+        e.preventDefault();
+        var el = $(this).closest('.swipeout');
+        var el_product_quantity = el.find('.product-quantity');
+        // var product_unit_price = el.find('.item-after').data('unit-price');
+        var el_product_amount = el.find('.product-amount');
+        myApp.prompt('Quantity',
+            function (value) {
+                if (value > 0) {
+                    el_product_quantity.text(value);
+                    // el_product_amount.text(product_unit_price * value);
+                }
+                updateAmountSell();
+            }
+        );
+        myApp.swipeoutClose(el);
+    });
+
+    var value = 1;
+
+    function updateAmountSell() {
+        var product_count = 0;
+        // var subtotal = 0;
+        // var discount = 0;
+        // var shipping_charges = 0;
+        var grand_total = 0;
+
+        product_count = $('.page[data-page=sell] .products-list li').length;
+
+        $$('.page[data-page=sell] .products-list li').each(function () {
+            // var unit_price = $$(this).find('[data-unit-price]').data('unit-price');
+            var quantity = $$(this).find('.product-quantity').text();
+            value = quantity;
+            // subtotal += parseInt(unit_price * quantity);
+             grand_total = parseInt(quantity);
+            $$(this).find('.product-amount').text(parseInt(quantity));
+        });
+
+        // discount = (subtotal * $$('.page[data-page=cart] [data-discount-percent]').data('discount-percent')) / 100;
+        // shipping_charges = parseInt($$('.page[data-page=cart] .shipping-charges').text());
+        // grand_total = parseInt(subtotal - discount + shipping_charges);
+
+        $$('.page[data-page=sell] .product-count').text(product_count);
+        // $$('.page[data-page=cart] .subtotal').text(subtotal);
+        // $$('.page[data-page=cart] .discount').text(discount);
+        $$('.page[data-page=sell] .payable-amount').text(grand_total);
+        $$('.page[data-page=sell] .toolbar-bottom .grand-total').text(grand_total);
+    }
+
+    $$('.page[data-page=sell] .toolbar-bottom .button').on('click', function (e) {
+
+        var apiHost = localStorage.getItem("api_host");
+        var apiKey = localStorage.getItem("api_key");
+        var userId = localStorage.getItem("user_id");
+        var stockId = localStorage.getItem("sell_stock_id");
+
+        $.ajax({
+            type: "POST",
+            url: apiHost + "/api/stock/sell",
+            headers: {'x-api-key': apiKey},
+            data: {'user_id': userId, 'stock_id': stockId, "value": value},
+            success: function (receiveData) {
+                myApp.addNotification({
+                    message: 'success',
+                    hold: 1500,
+                    button: {
+                        text: ''
+                    }
+                });
+                mainView.router.load({
+                    url: 'user-profile.html'
+                });
+            },
+            error: function (error) {
+                myApp.addNotification({
+                    message: 'fail',
+                    hold: 1500,
+                    button: {
+                        text: ''
+                    }
+                });
+                console.log(error);
+            }
+        });
+    });
+
+});
+
+/*
+|------------------------------------------------------------------------------
+| Top up
+|------------------------------------------------------------------------------
+*/
+
+myApp.onPageInit('top-up', function (page) {
+    updateAmountTopUp();
+
+    /* Change Quantity */
+    $$('.page[data-page=top-up] [data-action=change-quantity]').on('click', function (e) {
+        e.preventDefault();
+        var el = $(this).closest('.swipeout');
+        var el_product_quantity = el.find('.product-quantity');
+        // var product_unit_price = el.find('.item-after').data('unit-price');
+        var el_product_amount = el.find('.product-amount');
+        myApp.prompt('Quantity',
+            function (value) {
+                if (value > 0) {
+                    el_product_quantity.text(value);
+                    // el_product_amount.text(product_unit_price * value);
+                }
+                updateAmountTopUp();
+            }
+        );
+        myApp.swipeoutClose(el);
+    });
+
+    var value = 1;
+
+    function updateAmountTopUp() {
+        var product_count = 0;
+        // var subtotal = 0;
+        // var discount = 0;
+        // var shipping_charges = 0;
+        var grand_total = 0;
+
+        product_count = $('.page[data-page=top-up] .products-list li').length;
+
+        $$('.page[data-page=top-up] .products-list li').each(function () {
+            // var unit_price = $$(this).find('[data-unit-price]').data('unit-price');
+            var quantity = $$(this).find('.product-quantity').text();
+            value = quantity;
+            // subtotal += parseInt(unit_price * quantity);
+            grand_total = parseInt(quantity);
+            $$(this).find('.product-amount').text(parseInt(quantity));
+        });
+
+        // discount = (subtotal * $$('.page[data-page=cart] [data-discount-percent]').data('discount-percent')) / 100;
+        // shipping_charges = parseInt($$('.page[data-page=cart] .shipping-charges').text());
+        // grand_total = parseInt(subtotal - discount + shipping_charges);
+
+        $$('.page[data-page=top-up] .product-count').text(product_count);
+        // $$('.page[data-page=cart] .subtotal').text(subtotal);
+        // $$('.page[data-page=cart] .discount').text(discount);
+        $$('.page[data-page=top-up] .payable-amount').text(grand_total);
+        $$('.page[data-page=top-up] .toolbar-bottom .grand-total').text(grand_total);
+    }
+
+    $$('.page[data-page=top-up] .toolbar-bottom .button').on('click', function (e) {
+
+        var apiHost = localStorage.getItem("api_host");
+        var apiKey = localStorage.getItem("api_key");
+
+        $.ajax({
+            type: "POST",
+            url: apiHost + "/api/user/top_up",
+            headers: {'x-api-key': apiKey},
+            data: {"value": value},
+            success: function (receiveData) {
+                myApp.addNotification({
+                    message: 'success',
+                    hold: 1500,
+                    button: {
+                        text: ''
+                    }
+                });
+                mainView.router.load({
+                    url: 'user-profile.html'
+                });
+            },
+            error: function (error) {
+                myApp.addNotification({
+                    message: 'fail',
+                    hold: 1500,
+                    button: {
+                        text: ''
+                    }
+                });
+                console.log(error);
+            }
+        });
+    });
 
 });
 
@@ -1046,7 +1287,6 @@ myApp.onPageInit('products-list', function (page) {
         url: apiHost + "/api/stock/quotes",
         headers: {'x-api-key': apiKey},
         success: function (receiveData) {
-            console.log(receiveData);
             var tab = document.getElementById('stock-elements');
             if (Array.isArray(receiveData)) {
                 for (var i = 0; i < receiveData.length; i++) {
@@ -1069,7 +1309,16 @@ myApp.onPageInit('products-list', function (page) {
 
                     var button = createElement('button', ['button', 'button-fill']);
                     button.id = receiveData[i].id;
-                    button.href = ''; //@todo href
+                    button.data = receiveData[i].latest_price;
+                    button.data2 = receiveData[i].company_name + " (" + receiveData[i].symbol + ")";
+                    button.addEventListener('click', function () {
+                        localStorage.setItem("buy_stock_id", this.id);
+                        localStorage.setItem("buy_stock_name", this.data2);
+                        localStorage.setItem("buy_stock_price", this.data);
+                        mainView.router.load({
+                            url: 'cart.html'
+                        });
+                    });
                     button.appendChild(document.createTextNode("Buy"));
 
                     divButtonsRow.appendChild(button);
@@ -1560,14 +1809,19 @@ myApp.onPageInit('user-profile', function (page) {
                     pCount.innerHTML = 'Count: ';
                     pCount.appendChild(strongValue);
 
-                    //@todo price
-
                     var divProductActions = createElement('div', ['product-actions']);
                     var divButtonsRow = createElement('div', ['buttons-row']);
 
                     var button = createElement('button', ['button', 'button-fill']);
                     button.id = receiveData[i].stock.id;
-                    button.href = ''; //@todo href
+                    button.data = receiveData[i].stock.company_name + " (" + receiveData[i].stock.symbol + ")";
+                    button.addEventListener('click', function () {
+                        localStorage.setItem("sell_stock_id", this.id);
+                        localStorage.setItem("sell_stock_name", this.data);
+                        mainView.router.load({
+                            url: 'sell.html'
+                        });
+                    });
                     button.appendChild(document.createTextNode("Sell"));
 
                     divButtonsRow.appendChild(button);
@@ -1620,6 +1874,12 @@ myApp.onPageInit('user-profile', function (page) {
     //     });
     //     myPhotoBrowser.open();
     // });
+
+    $$('.page[data-page=user-profile] .user-actions .button').on('click', function (e) {
+        mainView.router.load({
+            url: 'top-up.html'
+        });
+    });
 
 });
 
