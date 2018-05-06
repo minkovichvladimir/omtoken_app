@@ -114,6 +114,21 @@
                     </div>
                 </a>
             </li>
+            <li>
+                <br>
+            </li>
+            <li>
+                <a href="" id="log-out" class="item-link close-panel">
+                    <div class="item-content">
+                        <div class="item-media">
+                            <img src="assets/custom/img/logout.png" width="24" alt="Log out"/>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title">Log out</div>
+                        </div>
+                    </div>
+                </a>
+            </li>
             <!--<li>-->
                 <!--<a href="settings.html" class="item-link close-panel">-->
                     <!--<div class="item-content">-->
@@ -202,6 +217,15 @@
     (function () {
         myApp.init();
     })();
+
+    $( "#log-out" ).click(function() {
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('api_key');
+
+        mainView.router.load({
+            url: 'login.html'
+        });
+    });
 </script>
 <!-- End: Scripts -->
 

@@ -242,7 +242,7 @@ myApp.onPageInit('sell', function (page) {
             var quantity = $$(this).find('.product-quantity').text();
             value = quantity;
             // subtotal += parseInt(unit_price * quantity);
-             grand_total = parseInt(quantity);
+            grand_total = parseInt(quantity);
             $$(this).find('.product-amount').text(parseInt(quantity));
         });
 
@@ -962,7 +962,6 @@ myApp.onPageInit('home', function (page) {
 */
 
 myApp.onPageInit('login', function (page) {
-
     /* Show|Hide Password */
     $$('.page[data-page=login] [data-action=show-hide-password]').on('click', function () {
         if ($$('.page[data-page=login] input[data-toggle=show-hide-password]').attr('type') === 'password') {
@@ -1663,9 +1662,15 @@ myApp.onPageInit('splash-screen', function (page) {
 
             /* 3 seconds after logo animation is completed, open walkthrough screen. */
             setTimeout(function () {
-                mainView.router.load({
-                    url: 'login.html'
-                });
+                if (localStorage.getItem('user_id') != null && localStorage.getItem('api_key') != null) {
+                    mainView.router.load({
+                        url: 'home.html'
+                    });
+                } else {
+                    mainView.router.load({
+                        url: 'login.html'
+                    });
+                }
             }, 3000);
         });
 
