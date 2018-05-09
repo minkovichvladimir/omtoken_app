@@ -80,3 +80,4 @@ sessionStorage.setItem('nectarMaterialThemeLayout', 'light');
 sessionStorage.setItem('nectarMaterialThemeColor', 'indigo');
 
 localStorage.setItem('api_host', 'http://185.51.246.70');
+// localStorage.setItem('api_host', 'http://127.0.0.1:8000');

@@ -76,9 +76,11 @@ myApp.onPageInit('cart', function (page) {
 
     var stockName = localStorage.getItem("buy_stock_name");
     var stockPrice = localStorage.getItem("buy_stock_price");
+    var stockTokenPrice = localStorage.getItem("buy_stock_token_price");
 
     document.getElementById("div-product-title").innerHTML = stockName;
     document.getElementById("div-product").setAttribute("data-unit-price", stockPrice);
+    document.getElementById("div-product").setAttribute("data-unit-token-price", stockTokenPrice);
 
     updateAmount();
 
@@ -88,12 +90,15 @@ myApp.onPageInit('cart', function (page) {
         var el = $(this).closest('.swipeout');
         var el_product_quantity = el.find('.product-quantity');
         var product_unit_price = el.find('.item-after').data('unit-price');
+        var product_unit_token_price = el.find('.item-after').data('unit-token-price');
         var el_product_amount = el.find('.product-amount');
+        var el_product_token_amount = el.find('.product-token-amount');
         myApp.prompt('Quantity',
             function (value) {
                 if (value > 0) {
                     el_product_quantity.text(value);
                     el_product_amount.text(product_unit_price * value);
+                    el_product_token_amount.text(product_unit_token_price * value);
                 }
                 updateAmount();
             }
@@ -134,16 +139,20 @@ myApp.onPageInit('cart', function (page) {
         // var discount = 0;
         // var shipping_charges = 0;
         var grand_total = 0;
+        var grand_token_total = 0;
 
         product_count = $('.page[data-page=cart] .products-list li').length;
 
         $$('.page[data-page=cart] .products-list li').each(function () {
             var unit_price = $$(this).find('[data-unit-price]').data('unit-price');
+            var unit_token_price = $$(this).find('[data-unit-token-price]').data('unit-token-price');
             var quantity = $$(this).find('.product-quantity').text();
             value = quantity;
             // subtotal += parseInt(unit_price * quantity);
-            grand_total = parseInt(unit_price * quantity);
-            $$(this).find('.product-amount').text(parseInt(unit_price * quantity));
+            grand_total = unit_price * quantity;
+            grand_token_total = unit_token_price * quantity;
+            $$(this).find('.product-amount').text(unit_price);
+            $$(this).find('.product-token-amount').text(unit_token_price);
         });
 
         // discount = (subtotal * $$('.page[data-page=cart] [data-discount-percent]').data('discount-percent')) / 100;
@@ -154,7 +163,8 @@ myApp.onPageInit('cart', function (page) {
         // $$('.page[data-page=cart] .subtotal').text(subtotal);
         // $$('.page[data-page=cart] .discount').text(discount);
         $$('.page[data-page=cart] .payable-amount').text(grand_total);
-        $$('.page[data-page=cart] .toolbar-bottom .grand-total').text('$' + grand_total);
+        $$('.page[data-page=cart] .payable-token-amount').text(grand_token_total);
+        $$('.page[data-page=cart] .toolbar-bottom .grand-total').text('$' + grand_total + ' / ' + grand_token_total);
     }
 
     $$('.page[data-page=cart] .toolbar-bottom .button').on('click', function (e) {
@@ -205,6 +215,9 @@ myApp.onPageInit('cart', function (page) {
 myApp.onPageInit('sell', function (page) {
     document.getElementById("div-product-title").innerHTML = localStorage.getItem("sell_stock_name");
 
+    var sellStockPrice = localStorage.getItem("sell_stock_price");
+    var sellStockTokenPrice = localStorage.getItem("sell_stock_token_price");
+
     updateAmountSell();
 
     /* Change Quantity */
@@ -253,7 +266,8 @@ myApp.onPageInit('sell', function (page) {
         $$('.page[data-page=sell] .product-count').text(product_count);
         // $$('.page[data-page=cart] .subtotal').text(subtotal);
         // $$('.page[data-page=cart] .discount').text(discount);
-        $$('.page[data-page=sell] .payable-amount').text(grand_total);
+        $$('.page[data-page=sell] .payable-amount').text((grand_total * sellStockPrice).toFixed(2));
+        $$('.page[data-page=sell] .payable-token-amount').text((grand_total * sellStockTokenPrice).toFixed(2));
         $$('.page[data-page=sell] .toolbar-bottom .grand-total').text(grand_total);
     }
 
@@ -1296,12 +1310,19 @@ myApp.onPageInit('products-list', function (page) {
                     h1.id = 'stock-symbol';
                     h1.innerHTML = receiveData[i].company_name + " (" + receiveData[i].symbol + ")";
 
-                    var strongPrice = createElement('strong', []);
-                    strongPrice.id = 'stock-price';
-                    strongPrice.innerHTML = receiveData[i].latest_price;
-                    var pPrice = createElement('p', []);
-                    pPrice.innerHTML = 'Price (USD): ';
-                    pPrice.appendChild(strongPrice);
+                    var strongPriceUsd = createElement('strong', []);
+                    strongPriceUsd.id = 'stock-price';
+                    strongPriceUsd.innerHTML = receiveData[i].latest_price;
+                    var pPriceUsd = createElement('p', []);
+                    pPriceUsd.innerHTML = 'Price (USD): ';
+                    pPriceUsd.appendChild(strongPriceUsd);
+
+                    var strongPriceToken = createElement('strong', []);
+                    strongPriceToken.id = 'stock-token-price';
+                    strongPriceToken.innerHTML = (receiveData[i].latest_token_price).toFixed(2);
+                    var pPriceToken = createElement('p', []);
+                    pPriceToken.innerHTML = 'Price (Token): ';
+                    pPriceToken.appendChild(strongPriceToken);
 
                     var divProductActions = createElement('div', ['product-actions']);
                     var divButtonsRow = createElement('div', ['buttons-row']);
@@ -1309,10 +1330,12 @@ myApp.onPageInit('products-list', function (page) {
                     var button = createElement('button', ['button', 'button-fill']);
                     button.id = receiveData[i].id;
                     button.data = receiveData[i].latest_price;
+                    button.data1 = (receiveData[i].latest_token_price).toFixed(2);
                     button.data2 = receiveData[i].company_name + " (" + receiveData[i].symbol + ")";
                     button.addEventListener('click', function () {
                         localStorage.setItem("buy_stock_id", this.id);
                         localStorage.setItem("buy_stock_name", this.data2);
+                        localStorage.setItem("buy_stock_token_price", this.data1);
                         localStorage.setItem("buy_stock_price", this.data);
                         mainView.router.load({
                             url: 'cart.html'
@@ -1324,7 +1347,8 @@ myApp.onPageInit('products-list', function (page) {
                     divProductActions.appendChild(divButtonsRow);
 
                     divProductWrapper.appendChild(h1);
-                    divProductWrapper.appendChild(pPrice);
+                    divProductWrapper.appendChild(pPriceUsd);
+                    divProductWrapper.appendChild(pPriceToken);
                     divProductWrapper.appendChild(divProductActions);
 
                     divColTablet.appendChild(divProductWrapper);
@@ -1783,6 +1807,7 @@ myApp.onPageInit('user-profile', function (page) {
             document.getElementById("profile-username").innerHTML = receiveData.username;
             document.getElementById("profile-email").innerHTML = receiveData.email;
             document.getElementById("profile-token-balance").innerHTML = receiveData.token_balance;
+            document.getElementById("profile-balance").innerHTML = '$' + receiveData.balance;
         },
         error: function (error) {
             console.log(error);
@@ -1807,6 +1832,7 @@ myApp.onPageInit('user-profile', function (page) {
                     h1.id = 'stock-symbol';
                     h1.innerHTML = receiveData[i].stock.company_name + " (" + receiveData[i].stock.symbol + ")";
 
+                    //count
                     var strongValue = createElement('strong', []);
                     strongValue.id = 'stock-value';
                     strongValue.innerHTML = receiveData[i].value;
@@ -1814,15 +1840,35 @@ myApp.onPageInit('user-profile', function (page) {
                     pCount.innerHTML = 'Count: ';
                     pCount.appendChild(strongValue);
 
+                    //usd
+                    var strongPriceUsd = createElement('strong', []);
+                    strongPriceUsd.id = 'stock-price-usd';
+                    strongPriceUsd.innerHTML = (receiveData[i].stock.latest_price * receiveData[i].value).toFixed(2);
+                    var pPriceUsd = createElement('p', []);
+                    pPriceUsd.innerHTML = 'Price (USD): ';
+                    pPriceUsd.appendChild(strongPriceUsd);
+
+                    //token
+                    var strongPriceToken = createElement('strong', []);
+                    strongPriceToken.id = 'stock-token-price';
+                    strongPriceToken.innerHTML = (receiveData[i].stock.latest_token_price * receiveData[i].value).toFixed(2);
+                    var pPriceToken = createElement('p', []);
+                    pPriceToken.innerHTML = 'Price (Token): ';
+                    pPriceToken.appendChild(strongPriceToken);
+
                     var divProductActions = createElement('div', ['product-actions']);
                     var divButtonsRow = createElement('div', ['buttons-row']);
 
                     var button = createElement('button', ['button', 'button-fill']);
                     button.id = receiveData[i].stock.id;
                     button.data = receiveData[i].stock.company_name + " (" + receiveData[i].stock.symbol + ")";
+                    button.data1 = receiveData[i].stock.latest_price;
+                    button.data2 = receiveData[i].stock.latest_token_price;
                     button.addEventListener('click', function () {
                         localStorage.setItem("sell_stock_id", this.id);
                         localStorage.setItem("sell_stock_name", this.data);
+                        localStorage.setItem("sell_stock_price", this.data1);
+                        localStorage.setItem("sell_stock_token_price", this.data2);
                         mainView.router.load({
                             url: 'sell.html'
                         });
@@ -1834,6 +1880,8 @@ myApp.onPageInit('user-profile', function (page) {
 
                     divProductWrapper.appendChild(h1);
                     divProductWrapper.appendChild(pCount);
+                    divProductWrapper.appendChild(pPriceUsd);
+                    divProductWrapper.appendChild(pPriceToken);
                     divProductWrapper.appendChild(divProductActions);
 
                     divColTablet.appendChild(divProductWrapper);
