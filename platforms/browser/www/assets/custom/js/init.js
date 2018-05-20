@@ -76,8 +76,17 @@ $$(document).on('pageInit', function (e) {
     }
 });
 
+var appVersion = '1.0.1';
+var savedAppVersion = localStorage.getItem('app_version');
+
+if (appVersion !== savedAppVersion) {
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('api_key');
+    localStorage.setItem('app_version', appVersion);
+}
+
 sessionStorage.setItem('nectarMaterialThemeLayout', 'light');
 sessionStorage.setItem('nectarMaterialThemeColor', 'indigo');
 
 localStorage.setItem('api_host', 'http://185.51.246.70');
-// localStorage.setItem('api_host', 'http://127.0.0.1:8000');
+//localStorage.setItem('api_host', 'http://127.0.0.1:8000');

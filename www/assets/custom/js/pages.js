@@ -1306,50 +1306,58 @@ myApp.onPageInit('products-list', function (page) {
                     var divColTablet = createElement('div', ['col-100', 'tablet-33']);
                     var divProductWrapper = createElement('div', ['product-wrapper']);
 
-                    var h1 = createElement('h1', []);
-                    h1.id = 'stock-symbol';
-                    h1.innerHTML = receiveData[i].company_name + " (" + receiveData[i].symbol + ")";
+                    var h3Symbol = createElement('strong', []);
+                    h3Symbol.id = 'stock-symbol';
+                    h3Symbol.innerHTML = receiveData[i].symbol;
+
+                    var h3Company = createElement('strong', []);
+                    h3Company.id = 'stock-company';
+                    h3Company.innerHTML = receiveData[i].company_name;
 
                     var strongPriceUsd = createElement('strong', []);
                     strongPriceUsd.id = 'stock-price';
-                    strongPriceUsd.innerHTML = receiveData[i].latest_price;
-                    var pPriceUsd = createElement('p', []);
-                    pPriceUsd.innerHTML = 'Price (USD): ';
-                    pPriceUsd.appendChild(strongPriceUsd);
+                    strongPriceUsd.innerHTML = receiveData[i].latest_price + ' $';
 
                     var strongPriceToken = createElement('strong', []);
                     strongPriceToken.id = 'stock-token-price';
-                    strongPriceToken.innerHTML = (receiveData[i].latest_token_price).toFixed(2);
-                    var pPriceToken = createElement('p', []);
-                    pPriceToken.innerHTML = 'Price (Token): ';
-                    pPriceToken.appendChild(strongPriceToken);
+                    strongPriceToken.innerHTML = (receiveData[i].latest_token_price).toFixed(2) + ' OMToken';
 
-                    var divProductActions = createElement('div', ['product-actions']);
-                    var divButtonsRow = createElement('div', ['buttons-row']);
+                    var strongPriceChange = createElement('strong', []);
+                    strongPriceChange.id = 'stock-price-change';
+                    if (receiveData[i].change_percent < 0) {
+                        strongPriceChange.innerHTML = receiveData[i].change_percent;
+                        strongPriceChange.setAttribute("style", "color:red; float:right;");
+                    }
+                    else {
+                        strongPriceChange.innerHTML = '+' + receiveData[i].change_percent;
+                        strongPriceChange.setAttribute("style", "color:green; float:right;");
+                    }
 
-                    var button = createElement('button', ['button', 'button-fill']);
-                    button.id = receiveData[i].id;
-                    button.data = receiveData[i].latest_price;
-                    button.data1 = (receiveData[i].latest_token_price).toFixed(2);
-                    button.data2 = receiveData[i].company_name + " (" + receiveData[i].symbol + ")";
-                    button.addEventListener('click', function () {
-                        localStorage.setItem("buy_stock_id", this.id);
-                        localStorage.setItem("buy_stock_name", this.data2);
-                        localStorage.setItem("buy_stock_token_price", this.data1);
-                        localStorage.setItem("buy_stock_price", this.data);
+                    divProductWrapper.appendChild(h3Symbol);
+                    divProductWrapper.appendChild(strongPriceChange);
+                    divProductWrapper.appendChild(createElement('br', []));
+                    divProductWrapper.appendChild(h3Company);
+                    divProductWrapper.appendChild(createElement('br', []));
+
+                    divProductWrapper.data = receiveData[i].id;
+                    divProductWrapper.data1 = receiveData[i].latest_price;
+                    divProductWrapper.data2 = (receiveData[i].latest_token_price).toFixed(2);
+                    divProductWrapper.data3 = receiveData[i].company_name + " (" + receiveData[i].symbol + ")";
+                    divProductWrapper.addEventListener('click', function () {
+                        localStorage.setItem("buy_stock_id", this.data);
+                        localStorage.setItem("buy_stock_price", this.data1);
+                        localStorage.setItem("buy_stock_token_price", this.data2);
+                        localStorage.setItem("buy_stock_name", this.data3);
                         mainView.router.load({
                             url: 'cart.html'
                         });
                     });
-                    button.appendChild(document.createTextNode("Buy"));
 
-                    divButtonsRow.appendChild(button);
-                    divProductActions.appendChild(divButtonsRow);
-
-                    divProductWrapper.appendChild(h1);
-                    divProductWrapper.appendChild(pPriceUsd);
-                    divProductWrapper.appendChild(pPriceToken);
-                    divProductWrapper.appendChild(divProductActions);
+                    // divProductWrapper.appendChild(strongPriceUsd);
+                    // divProductWrapper.appendChild(createElement('br', []));
+                    // divProductWrapper.appendChild(strongPriceToken);
+                    // divProductWrapper.appendChild(createElement('br', []));
+                    // divProductWrapper.appendChild(divProductActions);
 
                     divColTablet.appendChild(divProductWrapper);
 
