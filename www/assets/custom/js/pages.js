@@ -1035,7 +1035,13 @@ myApp.onPageInit('login', function (page) {
                     });
                 },
                 error: function (error) {
-                    console.log(error);
+                    myApp.addNotification({
+                        message: 'Fail auth',
+                        hold: 1500,
+                        button: {
+                            text: ''
+                        }
+                    });
                 }
             });
         }

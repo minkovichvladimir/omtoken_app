@@ -76,7 +76,7 @@ $$(document).on('pageInit', function (e) {
     }
 });
 
-var appVersion = '1.0.1';
+var appVersion = '1.0.2';
 var savedAppVersion = localStorage.getItem('app_version');
 
 if (appVersion !== savedAppVersion) {
